@@ -1,34 +1,76 @@
 @import url(http://fonts.googleapis.com/css?family=Titillium+Web);
+@import url('http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css');
+
 
 body
 {
 	font-family: 'Titillium Web', sans-serif;
 	overflow: hidden;
+	margin: 0px;
+	background-color: rgb(25,25,25);
+}
+.viewselector
+{
+	display: inline-block;
+	width: 100%;
+	height: 8vh;
+	color: white;
+}
+.indicator
+{
+	-webkit-transition: color .5s;
+		-moz-transition: color .5s;
+		-ms-transition: color .5s;
+		-o-transition: color .5s;
+		transition: color .5s;
+	display: inline-block;
+	padding-left: 1vw;
+	line-height: 8vh;
+	/*float: left;*/
+	color: rgb(200,0,0);
 }
 nav
 {
-	padding-top: 25px;
+	/*height: 8vh;*/
 	width: 100%;
+	/*background-color: rgb(50,50,50);*/
+	display: inline-block;
 }
-a 
+nav span
 {
+	display: inline-block;
+	line-height: 8vh;
+	/*color: white;*/
+
+}
+nav a 
+{
+	float: right;
+	display: inline-block;
 	text-decoration: none;
-	color: black;
-}
-.button
-{
+	line-height: 8vh;
+	display: inline-block;
 	font-size: 1em;
 	color: white;
-	background-color: rgb(100,100,100);
-    padding: .75vw 1.75vw;
-	margin: 25px 14vw;
-	border-radius: 20px;
-	border: none;
+	/*background-color: rgb(100,100,100);*/
+    /*padding: .75vh 1.75vw;*/
+	margin: 0vh 2vw ;
+	/*border-radius: 20px;*/
+	/*border: none;*/
+}
+.connected
+{
+	color: rgb(100,200,100);
+}
+
+.button
+{
+	
 }
 .row
 {
 	/*background-color: rgb(100,100,100);*/
-	margin: 10vw;
+	margin: 10vh 5vw;
 }
 .column
 {
@@ -38,9 +80,9 @@ a
 		-o-transition: background-color .25s;
 		transition: background-color .25s;
 	color: white;
-    padding: 2vw 7vw;
+    padding: 3vh 9vw;
 	background-color: rgb(100,100,100);
-	margin: 5vw;
+	margin: 10vh 5vw;
 	border-radius: 6px;	
 }
 .activated

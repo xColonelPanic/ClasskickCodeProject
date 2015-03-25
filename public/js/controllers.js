@@ -1,11 +1,28 @@
 (function(){
 	var app = angular.module('appControllers',[]);
 	var ref = new Firebase('https://dazzling-heat-6655.firebaseio.com/');
+	var connected = new Firebase('https://dazzling-heat-6655.firebaseio.com/.info/connected');
 	var cells = new Firebase('https://dazzling-heat-6655.firebaseio.com/cells');
 	var k = 3;
 
-	app.controller('MatrixController', ['$scope', '$http', '$filter', function($scope, $http, $filter){
+	app.controller('MatrixController', [function(){
 
+		// detect if connected to Firebase or not
+		connected.on('value', function(snapshot){
+			if(snapshot.val() === true)
+			{
+				// make some indicator green
+				$('.indicator').addClass('connected');
+				console.log("connected");
+			}
+			else
+			{
+				// make the indicator red
+				$('.indicator').removeClass('connected');
+				console.log("disconnected");
+			}
+		});
+		//on page load, set all squares' color according to the data in Firebase
 		cells.once('value', function(snapshot){
 			var allCells = snapshot.val();
 			for(i = 0 ; i < 2*k ; i ++)
@@ -14,9 +31,6 @@
 				{
 					var id = "cell" + i + j;
 					// use jquery to set each cell's color initially
-					// console.log(allCells[id].name);
-					// console.log(allCells[id].value);
-					// console.log(allCells[id].name + ": " + allCells[id].value);
 					if(allCells[id].value == 0)
 					{
 						// set color to grey
@@ -31,9 +45,9 @@
 			}
 		});
 
+		// when a square's data changes in Firebase, update its color
 		cells.on('child_changed', function(snapshot){
 			var changedCell = snapshot.val();
-			// console.log("changing " + changedCell.name);
 			if(changedCell.value == 0)
 			{
 				// set color to grey
@@ -47,12 +61,7 @@
 			}
 		});
 
-		// $('#cell00').click(function(){
-		// 	console.log("cell00");
-		// });
-		// $('#cell01').click(function(){
-		// 	console.log("cell01");
-		// });
+		// when you click a square, update the corresponding data in the Firebase.
 		$('.column').click(function(){
 			var id = $(this).attr('id');
 			var cell = cells.child(id);
@@ -67,12 +76,11 @@
 				else
 				{
 					cell.update({
-					"name": id,
-					"value": 0
-				});
+						"name": id,
+						"value": 0
+					});
 				}
 			});
-
 		});
 
 
