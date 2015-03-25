@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="classpunch">
+	<head>
+		<title>Classkick Code Project</title>
+		<script src='https://cdn.firebase.com/js/client/2.2.1/firebase.js'></script>
+		<script src='./bower_components/jquery/dist/jquery.min.js'></script>
+		<script src='./bower_components/angular/angular.min.js'></script>
+		<script src='./bower_components/angular-route/angular-route.min.js'></script>
+		<script type="text/javascript" src="./js/app.js"></script>
+		<script src="./js/controllers.js"></script>
+		<link rel="stylesheet" type="text/css" href="./css/styles.css">
+		<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+	</head>
+	<body>
+		<nav>
+			<center>
+				<!-- <span><a href="#">matrix</a></span><span><a href="#">canvas</a></span> -->
+				<a href="#/matrix"><span class="button">matrix</span></a>
+				<a href="#/canvas"><span class="button">canvas</span></a>
+			</center>
+		</nav>
+		<main>
+			<div ng-view></div>
+		</main>
+	</body>
+</html>
