@@ -1,4 +1,4 @@
-@import url(http://fonts.googleapis.com/css?family=Titillium+Web);
+@import url(http://fonts.googleapis.com/css?family=Titillium+Web:200,400);
 @import url('http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css');
 
 
@@ -31,7 +31,7 @@ body
 }
 nav
 {
-	/*height: 8vh;*/
+	height: 8vh;
 	width: 100%;
 	/*background-color: rgb(50,50,50);*/
 	display: inline-block;
@@ -40,6 +40,8 @@ nav span
 {
 	display: inline-block;
 	line-height: 8vh;
+	font-size: 2.2em;
+	font-weight: 200;
 	/*color: white;*/
 
 }
@@ -61,11 +63,6 @@ nav a
 .connected
 {
 	color: rgb(100,200,100);
-}
-
-.button
-{
-	
 }
 .row
 {
@@ -93,4 +90,25 @@ nav a
 		-o-transition: background-color .25s;
 		transition: background-color .25s;
 	background-color: rgb(100,200,100);
+}
+
+#main
+{
+	width: 80vw;
+	height: 80vh;
+}
+#myCanvas
+{
+	/*margin: 2vh;*/
+	background-color: white;
+	border: 1px solid #FFFFFF;
+}
+.button
+{
+	text-decoration: none;
+	border-radius: 6px;
+	color: white;
+	padding: 0vh 4vw;
+	margin: 1vh 4vw;
+	background-color: rgb(100,100,100);
 }

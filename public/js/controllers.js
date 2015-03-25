@@ -86,7 +86,24 @@
 
 	}]);
 
-	app.controller('CanvasController', ['$scope', '$http', '$filter', function($scope, $http, $filter){
+	app.controller('CanvasController', [function(){
 
+		var canvas = $('#myCanvas');
+		var context = canvas.get(0).getContext("2d");
+		var container = $(canvas).parent();
+		$(window).resize(resizeCanvas);
+		function resizeCanvas()
+		{
+			canvas.attr('width', $(container).width());
+			canvas.attr('height', $(container).height());
+		}
+		resizeCanvas();
+		context.beginPath();
+		context.moveTo(180, 130);
+		context.bezierCurveTo(140, 10, 388, 10, 388, 170);
+
+		// line color
+		context.strokeStyle = 'black';
+		context.stroke();
 	}]);
 })();
