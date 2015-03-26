@@ -20,13 +20,13 @@
 			{
 				// make some indicator green
 				$('.indicator').addClass('connected');
-				console.log("connected");
+				console.log("connected to Firebase");
 			}
 			else
 			{
 				// make the indicator red
 				$('.indicator').removeClass('connected');
-				console.log("disconnected");
+				console.log("disconnected from Firebase");
 			}
 		});
 		//on page load, set all squares' color according to the data in Firebase
@@ -69,7 +69,7 @@
 		});
 
 		// when you click a square, update the corresponding data in the Firebase.
-		$('.column').click(function(e){
+		$('.column').fastClick(function(e){
 			e.preventDefault();
 			var id = $(this).attr('id');
 			var cell = cells.child(id);
@@ -97,20 +97,22 @@
 		$('.canvasbutton').css('color', 'rgb(100,200,100)');
 		$('.matrixbutton').css('color', 'white');
 
-
+		// set up some globals
 		var lastPoint = null, mouseDown = 0, pixSize = 1, currentColor = "000";
 		var newref = null;
-		$('#pen').click(function(){
+
+		// set up some buttons
+		$('#pen').fastClick(function(){
 			currentColor = "000";
 			$('#pen').addClass('activated');
 			$('#eraser').removeClass('activated');
 		});
-		$('#eraser').click(function(){
+		$('#eraser').fastClick(function(){
 			currentColor = "fff";
 			$('#eraser').addClass('activated');
 			$('#pen').removeClass('activated');
 		});
-		$('#clear').click(function(){
+		$('#clear').fastClick(function(){
 			lines.set(null);
 		});
 
@@ -134,17 +136,19 @@
 
 		/*--V--V-------------------drawing functions-------------------V--V--*/
 
-		// local array of pixels; we will push pixels onto this array while drawing, then push them into the database after the stroke is complete. This should reduce lag.
+		// local set of pixels; we will add pixels to this while drawing, then push them all into the database at once after the stroke is complete. This should reduce client-side lag while drawing.
 		var pixelObj = {};
 
 		// these functions manipulate global variables based on mouse down or mouse up
 		canvas.onmousedown = function() {
 			mouseDown = 1;
+			// create a new stroke
 			if(currentColor != "fff")
 				newref = lines.push({"-10:-10" : "000"});
 		}
 		canvas.onmouseout = canvas.onmouseup = function()
 		{
+			// push current stroke into the database
 			if(newref != null)
 				newref.set(pixelObj);
 			pixelObj = {};
@@ -154,12 +158,14 @@
 		}
 		function onTouchStart(e)
 		{
+			// create a new stroke
 			if(currentColor != "fff")
 				newref = lines.push({"-10:-10" : "000"});
 			drawLineOnMouseMove(e);
 		}
 		function onTouchEnd(e)
 		{
+			// push current stroke into the database
 			if(newref != null)
 				newref.set(pixelObj);
 			pixelObj = {};
@@ -190,24 +196,16 @@
 			var sx = (x0 < x1) ? 1 : -1, sy = (y0 < y1) ? 1 : -1, err = dx - dy;
 			while (true) {
 
-			// write the pixel into Firebase, or if we are drawing white, remove all pixels in the stroke that you touched
-			/*
-				TODO:
-					- Draw pixels first
-					- store pixels in an array
-					- when the finger is lifted, store them in Firebase
-
-				This should cut down on the lag (hopefully)
-			*/
+			// draw a pixel, store it in our pixel object. when the stroke ends, we will push that object into the database.
 				if(currentColor != "fff")
 				{
-					// newref.child(x0 + ":" + y0).set(currentColor);
 					context.fillStyle = "#" + currentColor;
 					context.fillRect(x0 * pixSize, y0 * pixSize, pixSize, pixSize);
 					pixelObj[x0 + ":" + y0] = currentColor;
 				}
 				else
 				{
+					// erase entire strokes
 					lines.once('value', function(snapshot)
 					{
 						snapshot.forEach(function(childSnapshot)
@@ -243,7 +241,6 @@
 		// Note that child_added events will be fired for initial pixel data as well.
 		var drawPixel = function(snapshot) {
 			// due to the way Firebase handles the child_added event and how I set up the database, this loop iterates over all pixels in the stroke and redraws it. 
-			// TODO: Should optimize this better
 			for(e in snapshot.val())
 			{
 				var coords = e.split(":");
