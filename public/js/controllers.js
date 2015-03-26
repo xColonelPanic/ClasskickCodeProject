@@ -94,7 +94,7 @@
 		$('.matrixbutton').css('color', 'white');
 
 
-		var lastPoint = null, mouseDown = 0, pixSize = 1, currentColor = "000";
+		var lastPoint = null, mouseDown = 0, pixSize = 2, currentColor = "000";
 		var newref = null;
 		$('#pen').click(function(){
 			currentColor = "000";
@@ -144,10 +144,6 @@
 			if (!mouseDown) return;
 
 			e.preventDefault();
-
-
-			// var newKey = newref.key();
-
 
 			// Bresenham's line algorithm. We use this to ensure smooth lines are drawn
 			var offset = $('canvas').offset();
@@ -211,6 +207,12 @@
 				var coords = e.split(":");
 				context.clearRect(parseInt(coords[0]) * pixSize, parseInt(coords[1]) * pixSize, pixSize, pixSize);
 			}
+			lines.once('value', function(snapshot)
+			{
+				snapshot.forEach(function(e){
+					drawPixel(e);
+				});
+			});
 		};
 		lines.on('child_added', drawPixel);
 		lines.on('child_changed', drawPixel);
