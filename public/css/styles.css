@@ -16,6 +16,10 @@ body
 	height: 8vh;
 	color: white;
 }
+.viewselected
+{
+	color: rgb(100,200,100);
+}
 .indicator
 {
 	-webkit-transition: color .5s;

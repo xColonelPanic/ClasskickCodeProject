@@ -11,8 +11,12 @@
 
 	app.controller('MatrixController', [function(){
 
-		$('.matrixbutton').css('color', 'rgb(100,200,100)');
-		$('.canvasbutton').css('color', 'white');
+		$('.matrixbutton').addClass('viewselected');
+
+		$('.canvasbutton').fastClick(function(){
+			$('.canvasbutton').addClass('viewselected');
+			$('.matrixbutton').removeClass('viewselected');
+		});
 
 		// detect if connected to Firebase or not
 		connected.on('value', function(snapshot){
@@ -94,8 +98,12 @@
 
 	app.controller('CanvasController', [function(){
 
-		$('.canvasbutton').css('color', 'rgb(100,200,100)');
-		$('.matrixbutton').css('color', 'white');
+		$('.canvasbutton').addClass('viewselected');
+
+		$('.matrixbutton').fastClick(function(){
+			$('.matrixbutton').addClass('viewselected');
+			$('.canvasbutton').removeClass('viewselected');
+		});
 
 		// set up some globals
 		var lastPoint = null, mouseDown = 0, pixSize = 1, currentColor = "000";
@@ -125,12 +133,12 @@
 	    }
 		// resize canvas based on window size
 		var container = $('#myCanvas').parent();
-		$(window).resize(resizeCanvas);
 		function resizeCanvas()
 		{
 			$('#myCanvas').attr('width', $(container).width());
 			$('#myCanvas').attr('height', $(container).height());
 		}
+		$(window).resize(resizeCanvas);
 		// resize on page load
 		resizeCanvas();
 
