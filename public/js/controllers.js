@@ -1,9 +1,12 @@
 (function(){
 	var app = angular.module('appControllers',[]);
+	// set up references to locations in Firebase
 	var ref = new Firebase('https://dazzling-heat-6655.firebaseio.com/');
-	var connected = new Firebase('https://dazzling-heat-6655.firebaseio.com/.info/connected');
 	var cells = new Firebase('https://dazzling-heat-6655.firebaseio.com/cells');
 	var lines = new Firebase('https://dazzling-heat-6655.firebaseio.com/lines');
+	var connected = new Firebase('https://dazzling-heat-6655.firebaseio.com/.info/connected');
+	// set up number of columns in grid
+	// TODO make this dynamic
 	var k = 3;
 
 	app.controller('MatrixController', [function(){
@@ -66,7 +69,8 @@
 		});
 
 		// when you click a square, update the corresponding data in the Firebase.
-		$('.column').click(function(){
+		$('.column').click(function(e){
+			e.preventDefault();
 			var id = $(this).attr('id');
 			var cell = cells.child(id);
 			cell.once('value', function(snapshot){
@@ -128,6 +132,11 @@
 		// resize on page load
 		resizeCanvas();
 
+		/*--V--V-------------------drawing functions-------------------V--V--*/
+
+		// local array of pixels; we will push pixels onto this array while drawing, then push them into the database after the stroke is complete. This should reduce lag.
+		var pixelObj = {};
+
 		// these functions manipulate global variables based on mouse down or mouse up
 		canvas.onmousedown = function() {
 			mouseDown = 1;
@@ -136,6 +145,9 @@
 		}
 		canvas.onmouseout = canvas.onmouseup = function()
 		{
+			if(newref != null)
+				newref.set(pixelObj);
+			pixelObj = {};
 			mouseDown = 0;
 			lastPoint = null;
 			newref = null;
@@ -174,10 +186,22 @@
 			var dx = Math.abs(x1 - x0), dy = Math.abs(y1 - y0);
 			var sx = (x0 < x1) ? 1 : -1, sy = (y0 < y1) ? 1 : -1, err = dx - dy;
 			while (true) {
+
 			// write the pixel into Firebase, or if we are drawing white, remove all pixels in the stroke that you touched
+			/*
+				TODO:
+					- Draw pixels first
+					- store pixels in an array
+					- when the finger is lifted, store them in Firebase
+
+				This should cut down on the lag (hopefully)
+			*/
 				if(currentColor != "fff")
 				{
-					newref.child(x0 + ":" + y0).set(currentColor);
+					// newref.child(x0 + ":" + y0).set(currentColor);
+					context.fillStyle = "#" + currentColor;
+					context.fillRect(x0 * pixSize, y0 * pixSize, pixSize, pixSize);
+					pixelObj[x0 + ":" + y0] = currentColor;
 				}
 				else
 				{
