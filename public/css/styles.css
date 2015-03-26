@@ -116,10 +116,20 @@ nav a
 #myCanvas
 {
 	background-color: white;
+	cursor: pointer;
 }
 .toolbar
 {
 	width: 100%;
+}
+#colorviewer
+{
+	margin: 0vh 1vw;
+	padding: 0vh 4vw;
+	border-style: solid;
+	border-width: 1px;
+	border-color: white;
+	background-color: black;
 }
 .button
 {

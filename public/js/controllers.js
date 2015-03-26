@@ -14,11 +14,6 @@
 		$('.matrixbutton').addClass('viewselected');
 		$('.canvasbutton').removeClass('viewselected');
 
-		// $('.canvasbutton').fastClick(function(){
-		// 	$('.canvasbutton').addClass('viewselected');
-		// 	$('.matrixbutton').removeClass('viewselected');
-		// });
-
 		// detect if connected to Firebase or not
 		connected.on('value', function(snapshot){
 			if(snapshot.val() === true)
@@ -102,35 +97,41 @@
 		$('.canvasbutton').addClass('viewselected');
 		$('.matrixbutton').removeClass('viewselected');
 
-		// $('.matrixbutton').fastClick(function(){
-		// 	$('.matrixbutton').addClass('viewselected');
-		// 	$('.canvasbutton').removeClass('viewselected');
-		// });
-
 		// set up some globals
-		var lastPoint = null, mouseDown = 0, pixSize = 1, currentColor = "000";
+		var lastPoint = null, mouseDown = 0, pixSize = 2, currentColor = "000", erase = false;
 		var newref = null;
 
 		// set up some buttons
 		$('#pen').fastClick(function(){
-			currentColor = "000";
+			// currentColor = "000";
+			erase = false;
 			$('#pen').addClass('activated');
 			$('#eraser').removeClass('activated');
 		});
 		$('#eraser').fastClick(function(){
-			currentColor = "fff";
+			// currentColor = "fff";
+			erase = true;
 			$('#eraser').addClass('activated');
 			$('#pen').removeClass('activated');
 		});
 		$('#clear').fastClick(function(){
 			lines.set(null);
 		});
+		$('#colorselector').keyup(function(e){
+			if(e.keyCode == 13)
+			{
+				$('#colorviewer').css('background-color', "#" + $(this).val());
+				currentColor = $(this).val();
+				console.log(currentColor);
+				$(this).val('');
+			}
+		});
 
 		// set up the canvas
 		var canvas = document.getElementById('myCanvas');
 		var context = canvas.getContext ? canvas.getContext('2d') : null;
 	    if (context == null) {
-			alert("You must use a browser that supports HTML5 Canvas to run this demo.");
+			alert("Your browser does not support HTML5 Canvas.");
 			return;
 	    }
 		// resize canvas based on window size
@@ -153,8 +154,8 @@
 		canvas.onmousedown = function() {
 			mouseDown = 1;
 			// create a new stroke
-			if(currentColor != "fff")
-				newref = lines.push({"-10:-10" : "000"});
+			if(!erase)
+				newref = lines.push({"-10:-10" : currentColor});
 		}
 		canvas.onmouseout = canvas.onmouseup = function()
 		{
@@ -169,8 +170,8 @@
 		function onTouchStart(e)
 		{
 			// create a new stroke
-			if(currentColor != "fff")
-				newref = lines.push({"-10:-10" : "000"});
+			if(!erase)
+				newref = lines.push({"-10:-10" : currentColor});
 			drawLineOnMouseMove(e);
 		}
 		function onTouchEnd(e)
@@ -204,10 +205,15 @@
 			var y0 = (lastPoint == null) ? y1 : lastPoint[1];
 			var dx = Math.abs(x1 - x0), dy = Math.abs(y1 - y0);
 			var sx = (x0 < x1) ? 1 : -1, sy = (y0 < y1) ? 1 : -1, err = dx - dy;
+
 			while (true) {
 
 			// draw a pixel, store it in our pixel object. when the stroke ends, we will push that object into the database.
-				if(currentColor != "fff")
+			/*
+				TODO:
+					implement quadratic curves
+			*/
+				if(!erase)
 				{
 					context.fillStyle = "#" + currentColor;
 					context.fillRect(x0 * pixSize, y0 * pixSize, pixSize, pixSize);
@@ -254,7 +260,7 @@
 			for(e in snapshot.val())
 			{
 				var coords = e.split(":");
-				context.fillStyle = "#" + e;
+				context.fillStyle = "#" + snapshot.val()[e];
 				context.fillRect(parseInt(coords[0]) * pixSize, parseInt(coords[1]) * pixSize, pixSize, pixSize);	
 			}
 		};
