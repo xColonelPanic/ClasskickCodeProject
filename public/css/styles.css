@@ -107,7 +107,10 @@ nav a
 	/*width: 80vw;*/
 	padding-top: 2vh;
 	height: 80vh;
-	width: 75%;position: fixed;left: 50%;margin: 0 0 0 -37.5%;
+	width: 75%;
+	position: fixed;
+	left: 50%;
+	margin: 0 0 0 -37.5%;
 	text-align: center;
 }
 #myCanvas
