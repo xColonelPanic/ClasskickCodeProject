@@ -94,8 +94,8 @@
 		$('.matrixbutton').css('color', 'white');
 
 
-		var lastPoint = null, mouseDown = 0, pixSize = 2, currentColor = "000";
-
+		var lastPoint = null, mouseDown = 0, pixSize = 1, currentColor = "000";
+		var newref = null;
 		$('#pen').click(function(){
 			currentColor = "000";
 			$('#pen').addClass('activated');
@@ -128,17 +128,26 @@
 		// resize on page load
 		resizeCanvas();
 		// set up other canvas things
-		canvas.onmousedown = function() {mouseDown = 1;}
+		canvas.onmousedown = function() {
+			mouseDown = 1;
+			if(currentColor != "fff")
+				newref = lines.push({"-10:-10" : "000"});
+		}
 		canvas.onmouseout = canvas.onmouseup = function()
 		{
 			mouseDown = 0;
 			lastPoint = null;
+			newref = null;
 		}
 		// let's draw pictures
 		var drawLineOnMouseMove = function(e) {
 			if (!mouseDown) return;
 
 			e.preventDefault();
+
+
+			// var newKey = newref.key();
+
 
 			// Bresenham's line algorithm. We use this to ensure smooth lines are drawn
 			var offset = $('canvas').offset();
@@ -150,7 +159,22 @@
 			var sx = (x0 < x1) ? 1 : -1, sy = (y0 < y1) ? 1 : -1, err = dx - dy;
 			while (true) {
 			//write the pixel into Firebase, or if we are drawing white, remove the pixel
-				lines.child(x0 + ":" + y0).set(currentColor === "fff" ? null : currentColor);
+				// lines.child(x0 + ":" + y0).set(currentColor === "fff" ? null : currentColor);
+				if(currentColor != "fff")
+				{
+					newref.child(x0 + ":" + y0).set(currentColor);
+				}
+				else
+				{
+					lines.once('value', function(snapshot)
+					{
+						snapshot.forEach(function(childSnapshot)
+						{
+							if(childSnapshot.val()[x0 + ":" + y0] != null)
+								childSnapshot.ref().remove();
+						});
+					});
+				}
 
 				if (x0 == x1 && y0 == y1) break;
 				var e2 = 2 * err;
@@ -168,32 +192,25 @@
 		$(myCanvas).mousemove(drawLineOnMouseMove);
 		$(myCanvas).mousedown(drawLineOnMouseMove);
 
-
-	 //    var start = function(e) {
-	 //        var touchEvent = e.originalEvent.changedTouches[0];
-	 //        context.beginPath();  
-	 //        context.moveTo(touchEvent.pageX, touchEvent.pageY);
-	 //    };
-		// var move = function(e) {
-		//     var touchEvent = e.originalEvent.changedTouches[0];
-		//     e.preventDefault();
-		//     context.lineTo(touchEvent.pageX, touchEvent.pageY);
-		//     context.stroke();
-		// };
-		// $(myCanvas).touchstart(start);
-		// $(myCanvas).touchmove(move);
-
-
 		// Add callbacks that are fired any time the pixel data changes and adjusts the canvas appropriately.
 		// Note that child_added events will be fired for initial pixel data as well.
 		var drawPixel = function(snapshot) {
-			var coords = snapshot.key().split(":");
-			context.fillStyle = "#" + snapshot.val();
-			context.fillRect(parseInt(coords[0]) * pixSize, parseInt(coords[1]) * pixSize, pixSize, pixSize);
+			for(e in snapshot.val())
+			{
+				var coords = e.split(":");
+				context.fillStyle = "#" + e;
+				context.fillRect(parseInt(coords[0]) * pixSize, parseInt(coords[1]) * pixSize, pixSize, pixSize);	
+			}
+			// var coords = snapshot.key().split(":");
+			// context.fillStyle = "#" + snapshot.val();
+			// context.fillRect(parseInt(coords[0]) * pixSize, parseInt(coords[1]) * pixSize, pixSize, pixSize);
 		};
 		var clearPixel = function(snapshot) {
-			var coords = snapshot.key().split(":");
-			context.clearRect(parseInt(coords[0]) * pixSize, parseInt(coords[1]) * pixSize, pixSize, pixSize);
+			for(e in snapshot.val())
+			{
+				var coords = e.split(":");
+				context.clearRect(parseInt(coords[0]) * pixSize, parseInt(coords[1]) * pixSize, pixSize, pixSize);
+			}
 		};
 		lines.on('child_added', drawPixel);
 		lines.on('child_changed', drawPixel);
