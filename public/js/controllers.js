@@ -160,6 +160,9 @@
 		}
 		function onTouchEnd(e)
 		{
+			if(newref != null)
+				newref.set(pixelObj);
+			pixelObj = {};
 			newref = null
 			lastPoint = null;
 
