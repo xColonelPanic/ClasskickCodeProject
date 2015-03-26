@@ -2,7 +2,8 @@
 {
 	var app = angular.module('classpunch', [
 		'ngRoute',
-		'appControllers'
+		'appControllers',
+		'ngAnimate'
 	]);
 	app.config(['$routeProvider',
 		function($routeProvider)

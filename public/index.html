@@ -5,6 +5,7 @@
 		<script src='https://cdn.firebase.com/js/client/2.2.1/firebase.js'></script>
 		<script src='./bower_components/angular/angular.min.js'></script>
 		<script src='./bower_components/angular-route/angular-route.min.js'></script>
+		<script src='./bower_components/angular-animate/angular-animate.min.js'></script>
 		<script type="text/javascript" src="./js/app.js"></script>
 		<script src="./js/controllers.js"></script>
 		<link rel="stylesheet" type="text/css" href="./css/styles.css">
@@ -15,13 +16,13 @@
 			<nav>
 				<i title="online status" class="fa fa-circle indicator connected"></i>
 				<span>c l a s s p u n c h</span>
-				<a href="#/canvas">canvas</a>
-				<a href="#/matrix">matrix</a>
+				<a class="canvasbutton" href="#/canvas"><i class="fa fa-paint-brush"></i></a>
+				<a class="matrixbutton" href="#/matrix"><i class="fa fa-th"></i></a>
 			</nav>
 		</div>
 		<main>
-			<div ng-view></div>
+			<div class="fade" ng-view></div>
 		</main>
-		<script src='./bower_components/jquery/dist/jquery.min.js'></script>
+		<script src='./bower_components/jquery/jquery.min.js'></script>
 	</body>
 </html>
