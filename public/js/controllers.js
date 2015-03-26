@@ -12,11 +12,12 @@
 	app.controller('MatrixController', [function(){
 
 		$('.matrixbutton').addClass('viewselected');
+		$('.canvasbutton').removeClass('viewselected');
 
-		$('.canvasbutton').fastClick(function(){
-			$('.canvasbutton').addClass('viewselected');
-			$('.matrixbutton').removeClass('viewselected');
-		});
+		// $('.canvasbutton').fastClick(function(){
+		// 	$('.canvasbutton').addClass('viewselected');
+		// 	$('.matrixbutton').removeClass('viewselected');
+		// });
 
 		// detect if connected to Firebase or not
 		connected.on('value', function(snapshot){
@@ -99,11 +100,12 @@
 	app.controller('CanvasController', [function(){
 
 		$('.canvasbutton').addClass('viewselected');
+		$('.matrixbutton').removeClass('viewselected');
 
-		$('.matrixbutton').fastClick(function(){
-			$('.matrixbutton').addClass('viewselected');
-			$('.canvasbutton').removeClass('viewselected');
-		});
+		// $('.matrixbutton').fastClick(function(){
+		// 	$('.matrixbutton').addClass('viewselected');
+		// 	$('.canvasbutton').removeClass('viewselected');
+		// });
 
 		// set up some globals
 		var lastPoint = null, mouseDown = 0, pixSize = 1, currentColor = "000";
