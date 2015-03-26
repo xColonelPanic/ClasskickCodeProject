@@ -117,15 +117,15 @@
 		$('#clear').fastClick(function(){
 			lines.set(null);
 		});
-		$('#colorselector').keyup(function(e){
-			if(e.keyCode == 13)
-			{
-				$('#colorviewer').css('background-color', "#" + $(this).val());
-				currentColor = $(this).val();
-				console.log(currentColor);
-				$(this).val('');
-			}
-		});
+		// $('#colorselector').keyup(function(e){
+		// 	if(e.keyCode == 13)
+		// 	{
+		// 		$('#colorviewer').css('background-color', "#" + $(this).val());
+		// 		currentColor = $(this).val();
+		// 		console.log(currentColor);
+		// 		$(this).val('');
+		// 	}
+		// });
 
 		// set up the canvas
 		var canvas = document.getElementById('myCanvas');
