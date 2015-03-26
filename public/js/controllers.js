@@ -94,7 +94,7 @@
 		$('.matrixbutton').css('color', 'white');
 
 
-		var lastPoint = null, mouseDown = 0, pixSize = 2, currentColor = "000";
+		var lastPoint = null, mouseDown = 0, pixSize = 1, currentColor = "000";
 		var newref = null;
 		$('#pen').click(function(){
 			currentColor = "000";
@@ -127,7 +127,8 @@
 		}
 		// resize on page load
 		resizeCanvas();
-		// set up other canvas things
+
+		// these functions manipulate global variables based on mouse down or mouse up
 		canvas.onmousedown = function() {
 			mouseDown = 1;
 			if(currentColor != "fff")
@@ -139,23 +140,41 @@
 			lastPoint = null;
 			newref = null;
 		}
-		// let's draw pictures
+		function onTouchStart(e)
+		{
+			if(currentColor != "fff")
+				newref = lines.push({"-10:-10" : "000"});
+			drawLineOnMouseMove(e);
+		}
+		function onTouchEnd(e)
+		{
+			newref = null
+			lastPoint = null;
+
+		}
+
+		// let's draw pictures. lifted partially from the Firebase tutorial, modified to work for touch and to store strokes in addition to pixels.
 		var drawLineOnMouseMove = function(e) {
-			if (!mouseDown) return;
+			if(!e.touches)
+			{
+				if (!mouseDown) return;
+			}
 
 			e.preventDefault();
 
 			// Bresenham's line algorithm. We use this to ensure smooth lines are drawn
 			var offset = $('canvas').offset();
-			var x1 = Math.floor((e.pageX - offset.left) / pixSize - 1),
-			y1 = Math.floor((e.pageY - offset.top) / pixSize - 1);
+
+			// calculating the coordinates is slightly different for mobile and desktop, so this figures it out
+			var x1 = e.touches ? Math.floor((e.touches[0].pageX - e.touches[0].target.offsetParent.offsetLeft) / pixSize - 1) : Math.floor((e.pageX - offset.left) / pixSize - 1),
+			y1 = e.touches ? Math.floor((e.touches[0].pageY - e.touches[0].target.offsetParent.offsetTop) / pixSize - 1) : Math.floor((e.pageY - offset.top) / pixSize - 1);
+
 			var x0 = (lastPoint == null) ? x1 : lastPoint[0];
 			var y0 = (lastPoint == null) ? y1 : lastPoint[1];
 			var dx = Math.abs(x1 - x0), dy = Math.abs(y1 - y0);
 			var sx = (x0 < x1) ? 1 : -1, sy = (y0 < y1) ? 1 : -1, err = dx - dy;
 			while (true) {
-			//write the pixel into Firebase, or if we are drawing white, remove the pixel
-				// lines.child(x0 + ":" + y0).set(currentColor === "fff" ? null : currentColor);
+			// write the pixel into Firebase, or if we are drawing white, remove all pixels in the stroke that you touched
 				if(currentColor != "fff")
 				{
 					newref.child(x0 + ":" + y0).set(currentColor);
@@ -185,28 +204,34 @@
 			}
 			lastPoint = [x1, y1];
 		};
+
+
 		$(myCanvas).mousemove(drawLineOnMouseMove);
 		$(myCanvas).mousedown(drawLineOnMouseMove);
+		canvas.addEventListener('touchstart', onTouchStart, false);
+		canvas.addEventListener('touchmove', drawLineOnMouseMove, false);
+		canvas.addEventListener('touchend', onTouchEnd, false);
 
 		// Add callbacks that are fired any time the pixel data changes and adjusts the canvas appropriately.
 		// Note that child_added events will be fired for initial pixel data as well.
 		var drawPixel = function(snapshot) {
+			// due to the way Firebase handles the child_added event and how I set up the database, this loop iterates over all pixels in the stroke and redraws it. 
+			// TODO: Should optimize this better
 			for(e in snapshot.val())
 			{
 				var coords = e.split(":");
 				context.fillStyle = "#" + e;
 				context.fillRect(parseInt(coords[0]) * pixSize, parseInt(coords[1]) * pixSize, pixSize, pixSize);	
 			}
-			// var coords = snapshot.key().split(":");
-			// context.fillStyle = "#" + snapshot.val();
-			// context.fillRect(parseInt(coords[0]) * pixSize, parseInt(coords[1]) * pixSize, pixSize, pixSize);
 		};
 		var clearPixel = function(snapshot) {
+			// clear every pixel associated with a particular stroke
 			for(e in snapshot.val())
 			{
 				var coords = e.split(":");
 				context.clearRect(parseInt(coords[0]) * pixSize, parseInt(coords[1]) * pixSize, pixSize, pixSize);
 			}
+			// redraw all strokes, just in case strokes overlap and erasing one line leaves some pixels from the other lines missing
 			lines.once('value', function(snapshot)
 			{
 				snapshot.forEach(function(e){
