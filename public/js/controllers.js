@@ -101,6 +101,8 @@
 		var lastPoint = null, mouseDown = 0, pixSize = 2, currentColor = "000", erase = false;
 		var newref = null;
 
+		var ppts = [];
+
 		// set up some buttons
 		$('#pen').fastClick(function(){
 			// currentColor = "000";
@@ -160,12 +162,16 @@
 		canvas.onmouseout = canvas.onmouseup = function()
 		{
 			// push current stroke into the database
-			if(newref != null)
+			if(newref != null){
+				pixelObj["pixelArray"] = ppts;
 				newref.set(pixelObj);
+			}
 			pixelObj = {};
 			mouseDown = 0;
 			lastPoint = null;
 			newref = null;
+
+			ppts = [];
 		}
 		function onTouchStart(e)
 		{
@@ -177,11 +183,14 @@
 		function onTouchEnd(e)
 		{
 			// push current stroke into the database
-			if(newref != null)
+			if(newref != null){
+				pixelObj["pixelArray"] = ppts;
 				newref.set(pixelObj);
+			}
 			pixelObj = {};
 			newref = null
 			lastPoint = null;
+			ppts = [];
 
 		}
 
@@ -212,12 +221,28 @@
 			/*
 				TODO:
 					implement quadratic curves
+
+					ideas
+						store an array of coordinates in the order they appear in the stroke
+						on stroke deletion, redraw the curve in white, then redraw every other curve.
 			*/
 				if(!erase)
 				{
 					context.fillStyle = "#" + currentColor;
-					context.fillRect(x0 * pixSize, y0 * pixSize, pixSize, pixSize);
+					// context.fillRect(x0 * pixSize, y0 * pixSize, pixSize, pixSize);
 					pixelObj[x0 + ":" + y0] = currentColor;
+
+					ppts.push({x:x0*pixSize, y:y0*pixSize});
+					context.beginPath();
+					context.moveTo(ppts[0].x, ppts[0].y);
+					var i = 1;
+					for(; i < ppts.length -2; i ++)
+					{
+						var c = (ppts[i].x + ppts[i + 1].x) / 2;
+						var d = (ppts[i].y + ppts[i + 1].y) / 2;
+						context.quadraticCurveTo(ppts[i].x, ppts[i].y, c, d);
+					}
+					context.stroke();
 				}
 				else
 				{
@@ -257,20 +282,45 @@
 		// Note that child_added events will be fired for initial pixel data as well.
 		var drawPixel = function(snapshot) {
 			// due to the way Firebase handles the child_added event and how I set up the database, this loop iterates over all pixels in the stroke and redraws it. 
-			for(e in snapshot.val())
+			// for(e in snapshot.val())
+			// {
+			// 	var coords = e.split(":");
+			// 	context.fillStyle = "#" + snapshot.val()[e];
+			// 	context.fillRect(parseInt(coords[0]) * pixSize, parseInt(coords[1]) * pixSize, pixSize, pixSize);	
+			// }
+			var temp_ppts = snapshot.val().pixelArray;
+			context.beginPath();
+			context.moveTo(temp_ppts[0].x, temp_ppts[0].y);
+			var i = 1;
+			for(; i < temp_ppts.length -2; i ++)
 			{
-				var coords = e.split(":");
-				context.fillStyle = "#" + snapshot.val()[e];
-				context.fillRect(parseInt(coords[0]) * pixSize, parseInt(coords[1]) * pixSize, pixSize, pixSize);	
+				var c = (temp_ppts[i].x + temp_ppts[i + 1].x) / 2;
+				var d = (temp_ppts[i].y + temp_ppts[i + 1].y) / 2;
+				context.quadraticCurveTo(temp_ppts[i].x, temp_ppts[i].y, c, d);
 			}
+			context.stroke();
 		};
 		var clearPixel = function(snapshot) {
 			// clear every pixel associated with a particular stroke
-			for(e in snapshot.val())
+
+			// for(e in snapshot.val())
+			// {
+			// 	var coords = e.split(":");
+			// 	context.clearRect(parseInt(coords[0]) * pixSize, parseInt(coords[1]) * pixSize, pixSize, pixSize);
+			// }
+			context.fillStyle = "#fff";
+			var temp_ppts = snapshot.val().pixelArray;
+			context.beginPath();
+			context.moveTo(temp_ppts[0].x, temp_ppts[0].y);
+			var i = 1;
+			for(; i < temp_ppts.length -2; i ++)
 			{
-				var coords = e.split(":");
-				context.clearRect(parseInt(coords[0]) * pixSize, parseInt(coords[1]) * pixSize, pixSize, pixSize);
+				var c = (temp_ppts[i].x + temp_ppts[i + 1].x) / 2;
+				var d = (temp_ppts[i].y + temp_ppts[i + 1].y) / 2;
+				context.quadraticCurveTo(temp_ppts[i].x, temp_ppts[i].y, c, d);
 			}
+			context.stroke();
+			context.fillStyle = "#" + currentColor;
 			// redraw all strokes, just in case strokes overlap and erasing one line leaves some pixels from the other lines missing
 			lines.once('value', function(snapshot)
 			{
@@ -279,7 +329,7 @@
 				});
 			});
 		};
-		lines.on('child_added', drawPixel);
+		// lines.on('child_added', drawPixel);
 		lines.on('child_changed', drawPixel);
 		lines.on('child_removed', clearPixel);
 	}]);
