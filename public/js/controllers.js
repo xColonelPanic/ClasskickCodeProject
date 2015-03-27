@@ -68,7 +68,7 @@
 			}
 		});
 
-		// when you click a square, update the corresponding data in the Firebase.
+		// when you click a square, update the corresponding data in Firebase.
 		$('.column').fastClick(function(e){
 			e.preventDefault();
 			var id = $(this).attr('id');
@@ -98,7 +98,7 @@
 		$('.matrixbutton').removeClass('viewselected');
 
 		// set up some globals
-		var lastPoint = null, mouseDown = 0, pixSize = 2, currentColor = "000", erase = false;
+		var lastPoint = null, mouseDown = 0, pixSize = 1, currentColor = "000", erase = false;
 		var newref = null;
 
 		// set up some buttons
@@ -117,15 +117,20 @@
 		$('#clear').fastClick(function(){
 			lines.set(null);
 		});
-		// $('#colorselector').keyup(function(e){
-		// 	if(e.keyCode == 13)
-		// 	{
-		// 		$('#colorviewer').css('background-color', "#" + $(this).val());
-		// 		currentColor = $(this).val();
-		// 		console.log(currentColor);
-		// 		$(this).val('');
-		// 	}
-		// });
+		$('.colorselector').fastClick(function(){
+			if($(this).attr('id') == 'blackselect')
+			{
+				currentColor = "000";
+				$('#blackselect').addClass('colorselected');
+				$('#greenselect').removeClass('colorselected');
+			}
+			if($(this).attr('id') == 'greenselect')
+			{
+				currentColor = "64c864";
+				$('#greenselect').addClass('colorselected');
+				$('#blackselect').removeClass('colorselected');
+			}
+		});
 
 		// set up the canvas
 		var canvas = document.getElementById('myCanvas');
@@ -145,7 +150,7 @@
 		// resize on page load
 		resizeCanvas();
 
-		/*--V--V-------------------drawing functions-------------------V--V--*/
+		/* ----------------------- drawing functions ----------------------- */
 
 		// local set of pixels; we will add pixels to this while drawing, then push them all into the database at once after the stroke is complete. This should reduce client-side lag while drawing.
 		var pixelObj = {};
